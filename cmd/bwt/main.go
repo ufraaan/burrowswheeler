@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 
-	"burrowswheeler"
+	"github.com/ufraaan/burrowswheeler"
 )
 
 func main() {
