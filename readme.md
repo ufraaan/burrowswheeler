@@ -1,3 +1,5 @@
+<img src="assets/gopher.webp" alt="Go gopher" width="400">
+
 ### burrows–wheeler transform
 
 go package and cli for byte-based [burrows–wheeler transform](https://en.wikipedia.org/wiki/Burrows%E2%80%93Wheeler_transform) and its inverse.
