@@ -1,6 +1,11 @@
 package bwt
 
-import "sort"
+import (
+	"errors"
+	"sort"
+)
+
+var ErrInvalidPrimaryIndex = errors.New("invalid primary index")
 
 func Transform(input []byte) ([]byte, int) {
 	n := len(input)
@@ -33,4 +38,38 @@ func Transform(input []byte) ([]byte, int) {
 		}
 	}
 	return last, primary
+}
+
+func InverseTransform(lastColumn []byte, primary int) ([]byte, error) {
+	n := len(lastColumn)
+	if n == 0 {
+		if primary != 0 {
+			return nil, ErrInvalidPrimaryIndex
+		}
+		return []byte{}, nil
+	}
+	if primary < 0 || primary >= n {
+		return nil, ErrInvalidPrimaryIndex
+	}
+
+	occurrences := make([]int, n)
+	counts := [256]int{}
+	for i, value := range lastColumn {
+		occurrences[i] = counts[value]
+		counts[value]++
+	}
+
+	starts := [256]int{}
+	for value := 1; value < len(starts); value++ {
+		starts[value] = starts[value-1] + counts[value-1]
+	}
+
+	result := make([]byte, n)
+	row := primary
+	for i := n - 1; i >= 0; i-- {
+		value := lastColumn[row]
+		result[i] = value
+		row = starts[value] + occurrences[row]
+	}
+	return result, nil
 }
