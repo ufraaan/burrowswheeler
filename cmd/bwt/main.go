@@ -1,17 +1,20 @@
 package main
 
 import (
-	"burrowswheeler"
 	"flag"
 	"fmt"
 	"io"
 	"os"
 	"strconv"
+
+	"burrowswheeler"
 )
 
 func main() {
 	decode := flag.Bool("d", false, "")
 	primaryFlag := flag.Int("primary", -1, "")
+	blockMode := flag.Bool("block", false, "")
+	blockSize := flag.Int("block-size", 65536, "")
 	flag.Parse()
 
 	input, err := io.ReadAll(os.Stdin)
@@ -20,6 +23,16 @@ func main() {
 	}
 
 	if *decode {
+		if *blockMode {
+			output, err := bwt.DecodeBlocks(input)
+			if err != nil {
+				fail(err)
+			}
+			if _, err := os.Stdout.Write(output); err != nil {
+				fail(err)
+			}
+			return
+		}
 		if *primaryFlag < 0 {
 			if flag.NArg() != 1 {
 				fail(fmt.Errorf("provide the primary index with -primary or as an argument"))
@@ -30,6 +43,16 @@ func main() {
 			}
 		}
 		output, err := bwt.InverseTransform(input, *primaryFlag)
+		if err != nil {
+			fail(err)
+		}
+		if _, err := os.Stdout.Write(output); err != nil {
+			fail(err)
+		}
+		return
+	}
+	if *blockMode {
+		output, err := bwt.EncodeBlocks(input, *blockSize)
 		if err != nil {
 			fail(err)
 		}
